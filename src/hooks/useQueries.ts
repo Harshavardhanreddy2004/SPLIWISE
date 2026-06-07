@@ -177,6 +177,7 @@ export function useExpenseMutations(groupId: string | null) {
 
   const createMutation = useMutation({
     mutationFn: ({
+      groupId: argGroupId,
       title,
       amount,
       paidBy,
@@ -186,6 +187,7 @@ export function useExpenseMutations(groupId: string | null) {
       splitType,
       notes,
     }: {
+      groupId?: string;
       title: string;
       amount: number;
       paidBy: string;
@@ -194,9 +196,11 @@ export function useExpenseMutations(groupId: string | null) {
       createdBy: string;
       splitType: 'equal' | 'percentage' | 'exact';
       notes: string | null;
-    }) =>
-      api.createExpense(
-        groupId!,
+    }) => {
+      const activeGroupId = argGroupId || groupId;
+      if (!activeGroupId) throw new Error('No group ID provided for expense creation.');
+      return api.createExpense(
+        activeGroupId,
         title,
         amount,
         paidBy,
@@ -205,16 +209,21 @@ export function useExpenseMutations(groupId: string | null) {
         createdBy,
         splitType,
         notes
-      ),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['group-expenses', groupId] });
-      queryClient.invalidateQueries({ queryKey: ['group-activities', groupId] });
+      );
+    },
+    onSuccess: (_, variables) => {
+      const activeGroupId = variables.groupId || groupId;
+      if (activeGroupId) {
+        queryClient.invalidateQueries({ queryKey: ['group-expenses', activeGroupId] });
+        queryClient.invalidateQueries({ queryKey: ['group-activities', activeGroupId] });
+      }
     },
   });
 
   const updateMutation = useMutation({
     mutationFn: ({
       expenseId,
+      groupId: argGroupId,
       title,
       amount,
       paidBy,
@@ -224,6 +233,7 @@ export function useExpenseMutations(groupId: string | null) {
       notes,
     }: {
       expenseId: string;
+      groupId?: string;
       title: string;
       amount: number;
       paidBy: string;
@@ -242,17 +252,22 @@ export function useExpenseMutations(groupId: string | null) {
         splitType,
         notes
       ),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['group-expenses', groupId] });
-      queryClient.invalidateQueries({ queryKey: ['group-activities', groupId] });
+    onSuccess: (_, variables) => {
+      const activeGroupId = variables.groupId || groupId;
+      if (activeGroupId) {
+        queryClient.invalidateQueries({ queryKey: ['group-expenses', activeGroupId] });
+        queryClient.invalidateQueries({ queryKey: ['group-activities', activeGroupId] });
+      }
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (expenseId: string) => api.deleteExpense(expenseId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['group-expenses', groupId] });
-      queryClient.invalidateQueries({ queryKey: ['group-activities', groupId] });
+      if (groupId) {
+        queryClient.invalidateQueries({ queryKey: ['group-expenses', groupId] });
+        queryClient.invalidateQueries({ queryKey: ['group-activities', groupId] });
+      }
     },
   });
 

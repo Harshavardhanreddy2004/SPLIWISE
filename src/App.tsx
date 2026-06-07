@@ -74,6 +74,7 @@ const AppContent: React.FC = () => {
     if (!expenseId) {
       // Add expense
       await createExpense({
+        groupId,
         title,
         amount,
         paidBy,
@@ -88,6 +89,7 @@ const AppContent: React.FC = () => {
       // Update expense
       await updateExpense({
         expenseId,
+        groupId,
         title,
         amount,
         paidBy,

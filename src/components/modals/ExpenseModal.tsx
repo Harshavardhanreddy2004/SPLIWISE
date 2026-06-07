@@ -4,7 +4,8 @@ import { useAuth } from '../../context/AuthContext';
 import * as api from '../../services/api';
 import { uploadReceipt } from '../../services/storage';
 import type { Group, Profile, Expense } from '../../types';
-import { X, Camera, RefreshCw, CheckSquare, Square, Percent, DollarSign } from 'lucide-react';
+import { X, Camera, RefreshCw, CheckSquare, Square, Percent } from 'lucide-react';
+import { formatCurrency } from '../../utils/expense';
 
 interface ExpenseModalProps {
   isOpen: boolean;
@@ -252,9 +253,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
       const sumExact = getSumExact();
       if (Math.abs(sumExact - parsedAmount) > 0.01) {
         showToast(
-          `Exact amounts must sum to the total amount of $${parsedAmount.toFixed(
-            2
-          )}. Currently: $${sumExact.toFixed(2)}`,
+          `Exact amounts must sum to the total amount of ${formatCurrency(parsedAmount)}. Currently: ${formatCurrency(sumExact)}`,
           'error'
         );
         return;
@@ -363,10 +362,10 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
           {/* Amount input */}
           <div>
             <label className="block text-xs font-semibold text-zinc-400 mb-1 ml-1">
-              Amount ($)
+              Amount (₹)
             </label>
             <div className="relative">
-              <span className="absolute left-4 top-3.5 font-bold text-zinc-400 text-sm">$</span>
+              <span className="absolute left-4 top-3.5 font-bold text-zinc-400 text-sm">₹</span>
               <input
                 type="number"
                 step="0.01"
@@ -464,7 +463,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
                       <span className={`text-[10px] font-semibold flex items-center gap-1 ${
                         Math.abs(sumExact - parsedAmountVal) < 0.01 ? 'text-emerald-400' : 'text-amber-400'
                       }`}>
-                        <DollarSign className="w-3 h-3" /> ${sumExact.toFixed(2)} / ${parsedAmountVal.toFixed(2)}
+                        <span className="font-bold text-[10px]">₹</span> {formatCurrency(sumExact)} / {formatCurrency(parsedAmountVal)}
                       </span>
                     )}
                   </div>
@@ -512,7 +511,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
 
                           {isChecked && splitType === 'exact' && (
                             <div className="relative w-24">
-                              <span className="absolute left-2 top-1.5 text-[10px] text-zinc-500">$</span>
+                              <span className="absolute left-2 top-1.5 text-[10px] text-zinc-550">₹</span>
                               <input
                                 type="number"
                                 placeholder="0.00"
