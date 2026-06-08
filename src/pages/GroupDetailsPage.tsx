@@ -582,15 +582,15 @@ export const GroupDetailsPage: React.FC<GroupDetailsPageProps> = ({
                               </div>
                               <div className="flex items-center gap-2 flex-shrink-0">
                                 {settlingDebtIndex === index ? (
-                                  <div className="flex items-center gap-1.5">
-                                    <div className="relative w-20">
-                                      <span className="absolute left-1.5 top-1.5 text-[9px] text-zinc-550">₹</span>
+                                  <div className="flex items-center gap-2">
+                                    <div className="relative w-28">
+                                      <span className="absolute left-2.5 top-2 text-[10px] text-zinc-400">₹</span>
                                       <input
                                         type="number"
                                         step="0.01"
                                         value={customSettleAmount}
                                         onChange={(e) => setCustomSettleAmount(e.target.value)}
-                                        className="w-full glass-input rounded px-1.5 py-0.5 text-right text-[10px] text-zinc-100 pl-4 bg-zinc-950 border border-white/5"
+                                        className="w-full glass-input rounded-lg px-2.5 py-1 text-right text-xs text-zinc-100 pl-6 bg-zinc-950 border border-white/10"
                                         placeholder="0.00"
                                         disabled={isSettling}
                                       />
@@ -598,14 +598,16 @@ export const GroupDetailsPage: React.FC<GroupDetailsPageProps> = ({
                                     <button
                                       onClick={() => handleConfirmSettle(debt)}
                                       disabled={isSettling}
-                                      className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[9px] px-2 py-1.5 rounded transition active:scale-95 shadow-sm"
+                                      className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-3 py-1 rounded-lg transition active:scale-95 shadow-md flex items-center justify-center min-w-8"
+                                      title="Confirm"
                                     >
                                       ✓
                                     </button>
                                     <button
                                       onClick={() => setSettlingDebtIndex(null)}
                                       disabled={isSettling}
-                                      className="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold text-[9px] px-2 py-1.5 rounded transition active:scale-95"
+                                      className="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold text-xs px-3 py-1 rounded-lg transition active:scale-95 flex items-center justify-center min-w-8"
+                                      title="Cancel"
                                     >
                                       ✗
                                     </button>
