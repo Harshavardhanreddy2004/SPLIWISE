@@ -622,7 +622,7 @@ export const GroupDetailsPage: React.FC<GroupDetailsPageProps> = ({
                                       <button
                                         onClick={() => handleSettleDebt(index, debt.amount)}
                                         disabled={isSettling}
-                                        className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-[10px] px-3 py-1 rounded-lg transition active:scale-95 shadow-sm"
+                                        className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs px-4 py-1.5 rounded-lg transition active:scale-95 shadow-sm"
                                       >
                                         {isSettling ? '...' : 'Settle'}
                                       </button>
