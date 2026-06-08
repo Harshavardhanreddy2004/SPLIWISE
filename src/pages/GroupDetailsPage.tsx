@@ -82,6 +82,8 @@ export const GroupDetailsPage: React.FC<GroupDetailsPageProps> = ({
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [editGroupName, setEditGroupName] = useState('');
   const [editGroupType, setEditGroupType] = useState<'trip' | 'home' | 'couple' | 'other'>('other');
+  const [settlingDebtIndex, setSettlingDebtIndex] = useState<number | null>(null);
+  const [customSettleAmount, setCustomSettleAmount] = useState<string>('');
 
   useEffect(() => {
     if (group) {
@@ -154,17 +156,15 @@ export const GroupDetailsPage: React.FC<GroupDetailsPageProps> = ({
     }
   };
 
-  const handleSettleDebt = async (debt: Debt) => {
+  const handleSettleDebt = (index: number, initialAmount: number) => {
+    setSettlingDebtIndex(index);
+    setCustomSettleAmount(initialAmount.toFixed(2));
+  };
+
+  const handleConfirmSettle = async (debt: Debt) => {
     if (!profile) return;
 
-    const promptAmount = window.prompt(
-      `Enter cash settlement amount for ${debt.fromName} paying ${debt.toName} (Max: ${debt.amount.toFixed(2)}):`,
-      debt.amount.toFixed(2)
-    );
-
-    if (promptAmount === null) return; // User cancelled the prompt
-
-    const parsedAmount = parseFloat(promptAmount);
+    const parsedAmount = parseFloat(customSettleAmount);
     if (isNaN(parsedAmount) || parsedAmount <= 0) {
       showToast('Please enter a valid positive settlement amount.', 'error');
       return;
@@ -199,6 +199,7 @@ export const GroupDetailsPage: React.FC<GroupDetailsPageProps> = ({
       );
 
       showToast(`Logged cash settlement of ${formatCurrency(parsedAmount)}!`, 'success');
+      setSettlingDebtIndex(null);
       refetch();
     } catch (err: any) {
       console.error(err);
@@ -580,18 +581,51 @@ export const GroupDetailsPage: React.FC<GroupDetailsPageProps> = ({
                                 <span className="font-bold text-indigo-400">{debt.toName}</span>
                               </div>
                               <div className="flex items-center gap-2 flex-shrink-0">
-                                <span className="font-mono font-bold text-emerald-400 text-xs">
-                                  {formatCurrency(debt.amount)}
-                                </span>
+                                {settlingDebtIndex === index ? (
+                                  <div className="flex items-center gap-1.5">
+                                    <div className="relative w-20">
+                                      <span className="absolute left-1.5 top-1.5 text-[9px] text-zinc-550">₹</span>
+                                      <input
+                                        type="number"
+                                        step="0.01"
+                                        value={customSettleAmount}
+                                        onChange={(e) => setCustomSettleAmount(e.target.value)}
+                                        className="w-full glass-input rounded px-1.5 py-0.5 text-right text-[10px] text-zinc-100 pl-4 bg-zinc-950 border border-white/5"
+                                        placeholder="0.00"
+                                        disabled={isSettling}
+                                      />
+                                    </div>
+                                    <button
+                                      onClick={() => handleConfirmSettle(debt)}
+                                      disabled={isSettling}
+                                      className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[9px] px-2 py-1.5 rounded transition active:scale-95 shadow-sm"
+                                    >
+                                      ✓
+                                    </button>
+                                    <button
+                                      onClick={() => setSettlingDebtIndex(null)}
+                                      disabled={isSettling}
+                                      className="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold text-[9px] px-2 py-1.5 rounded transition active:scale-95"
+                                    >
+                                      ✗
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <>
+                                    <span className="font-mono font-bold text-emerald-400 text-xs">
+                                      {formatCurrency(debt.amount)}
+                                    </span>
 
-                                {(isSelfInvolved || isCreator) && (
-                                  <button
-                                    onClick={() => handleSettleDebt(debt)}
-                                    disabled={isSettling}
-                                    className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-[10px] px-3 py-1 rounded-lg transition active:scale-95 shadow-sm"
-                                  >
-                                    {isSettling ? '...' : 'Settle'}
-                                  </button>
+                                    {(isSelfInvolved || isCreator) && (
+                                      <button
+                                        onClick={() => handleSettleDebt(index, debt.amount)}
+                                        disabled={isSettling}
+                                        className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-[10px] px-3 py-1 rounded-lg transition active:scale-95 shadow-sm"
+                                      >
+                                        {isSettling ? '...' : 'Settle'}
+                                      </button>
+                                    )}
+                                  </>
                                 )}
                               </div>
                             </div>
