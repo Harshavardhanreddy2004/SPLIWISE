@@ -362,11 +362,14 @@ export async function createSettlement(
 export async function fetchGroupActivities(groupId: string): Promise<Activity[]> {
   const { data, error } = await supabase
     .from('activities')
-    .select('*, profile:profiles(*)')
+    .select('*, profile:profiles(*), groups(name)')
     .eq('group_id', groupId)
     .order('created_at', { ascending: false })
     .limit(50);
 
   if (error) throw error;
-  return data || [];
+  return (data || []).map((act: any) => ({
+    ...act,
+    groupName: act.groups?.name,
+  }));
 }

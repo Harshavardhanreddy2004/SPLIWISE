@@ -19,6 +19,8 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({ activities, loading 
       minute: '2-digit',
     });
 
+    const groupSuffix = act.groupName ? ` in "${act.groupName}"` : '';
+
     switch (act.action_type) {
       case 'expense_created':
         return {
@@ -28,6 +30,7 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({ activities, loading 
               <strong className="text-zinc-200">{actorName}</strong> logged expense{' '}
               <span className="text-indigo-400 font-medium">"{act.metadata.expense_title}"</span> of{' '}
               <strong className="text-emerald-400">{formatCurrency(act.metadata.amount || 0)}</strong>
+              {groupSuffix}
             </span>
           ),
           time: timeStr,
@@ -40,6 +43,7 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({ activities, loading 
               <strong className="text-zinc-200">{actorName}</strong> updated expense{' '}
               <span className="text-zinc-300 font-medium">"{act.metadata.expense_title}"</span> to{' '}
               <strong className="text-zinc-100">{formatCurrency(act.metadata.amount || 0)}</strong>
+              {groupSuffix}
             </span>
           ),
           time: timeStr,
@@ -52,6 +56,7 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({ activities, loading 
               <strong className="text-zinc-200">{actorName}</strong> deleted expense{' '}
               <span className="text-zinc-400 line-through">"{act.metadata.expense_title}"</span> of{' '}
               <strong>{formatCurrency(act.metadata.amount || 0)}</strong>
+              {groupSuffix}
             </span>
           ),
           time: timeStr,
@@ -64,6 +69,7 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({ activities, loading 
               <strong className="text-zinc-200">{act.metadata.payer_name}</strong> settled up with{' '}
               <strong className="text-indigo-400">{act.metadata.payee_name}</strong> for{' '}
               <strong className="text-emerald-400">{formatCurrency(act.metadata.amount || 0)}</strong>
+              {groupSuffix}
             </span>
           ),
           time: timeStr,
@@ -74,6 +80,7 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({ activities, loading 
           message: (
             <span>
               <strong className="text-zinc-200">{act.metadata.member_name}</strong> joined the group
+              {groupSuffix}
             </span>
           ),
           time: timeStr,
@@ -84,6 +91,7 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({ activities, loading 
           message: (
             <span>
               <strong className="text-zinc-200">{act.metadata.member_name}</strong> was removed from the group
+              {groupSuffix}
             </span>
           ),
           time: timeStr,
@@ -91,7 +99,7 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({ activities, loading 
       default:
         return {
           icon: <Calendar className="w-4 h-4 text-zinc-400" />,
-          message: <span>Activity recorded in group ledger</span>,
+          message: <span>Activity recorded in group ledger{groupSuffix}</span>,
           time: timeStr,
         };
     }

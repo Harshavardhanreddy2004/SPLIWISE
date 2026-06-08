@@ -79,6 +79,7 @@ export interface Activity {
   };
   created_at: string;
   profile?: Profile; // User who did the action
+  groupName?: string;
 }
 
 export interface Debt {
