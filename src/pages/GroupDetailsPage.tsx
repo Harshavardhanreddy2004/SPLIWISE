@@ -156,22 +156,33 @@ export const GroupDetailsPage: React.FC<GroupDetailsPageProps> = ({
 
   const handleSettleDebt = async (debt: Debt) => {
     if (!profile) return;
-    const desc = `Settle Up: ${debt.fromName} to ${debt.toName}`;
 
-    if (
-      !window.confirm(
-        `Confirm settlement: Has ${debt.fromName} paid ${formatCurrency(debt.amount)} to ${debt.toName}?`
-      )
-    ) {
+    const promptAmount = window.prompt(
+      `Enter cash settlement amount for ${debt.fromName} paying ${debt.toName} (Max: ${debt.amount.toFixed(2)}):`,
+      debt.amount.toFixed(2)
+    );
+
+    if (promptAmount === null) return; // User cancelled the prompt
+
+    const parsedAmount = parseFloat(promptAmount);
+    if (isNaN(parsedAmount) || parsedAmount <= 0) {
+      showToast('Please enter a valid positive settlement amount.', 'error');
       return;
     }
+
+    if (parsedAmount > debt.amount + 0.01) {
+      showToast(`Settlement amount cannot exceed the outstanding debt of ${formatCurrency(debt.amount)}.`, 'error');
+      return;
+    }
+
+    const desc = `Settle Up: ${debt.fromName} to ${debt.toName}`;
 
     try {
       // 1. Record the settlement in the Settlements table
       await createSettlement({
         payerId: debt.fromProfileId,
         payeeId: debt.toProfileId,
-        amount: debt.amount,
+        amount: parsedAmount,
         createdBy: profile.id,
       });
 
@@ -179,15 +190,15 @@ export const GroupDetailsPage: React.FC<GroupDetailsPageProps> = ({
       await api.createExpense(
         groupId,
         desc,
-        debt.amount,
+        parsedAmount,
         debt.fromProfileId, // Paid by debtor
-        [{ profileId: debt.toProfileId, amount: debt.amount }], // Split share 100% to creditor
+        [{ profileId: debt.toProfileId, amount: parsedAmount }], // Split share 100% to creditor
         null, // No receipt url for settlement
         profile.id, // Created by current user
         'exact'
       );
 
-      showToast(`Logged settlement of ${formatCurrency(debt.amount)}!`, 'success');
+      showToast(`Logged cash settlement of ${formatCurrency(parsedAmount)}!`, 'success');
       refetch();
     } catch (err: any) {
       console.error(err);
